@@ -23,7 +23,7 @@ namespace wiki_update_companion.Controllers
 
         // POST: Upgrade
         [HttpPost]
-        public async void Post([FromBody] string value)
+        public async void Post()
         {
             DockerClient client = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
 
