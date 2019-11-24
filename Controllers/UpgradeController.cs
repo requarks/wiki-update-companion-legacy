@@ -33,16 +33,6 @@ namespace wiki_update_companion.Controllers
 
             DockerClient client = new DockerClientConfiguration(dockerSocket).CreateClient();
 
-            await client.Images.CreateImageAsync(
-                new ImagesCreateParameters
-                {
-                    Repo = "containrrr/watchtower",
-                    Tag = "latest"
-                },
-                null,
-                null
-            );
-
             CreateContainerResponse wtcontainer = await client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 Image = "containrrr/watchtower",
@@ -69,15 +59,7 @@ namespace wiki_update_companion.Controllers
                 AttachStdout = true
             });
 
-            MultiplexedStream wtStream = await client.Containers.StartAndAttachContainerExecAsync(wtcontainer.ID, false);
-
-            var output = await wtStream.ReadOutputToEndAsync(CancellationToken.None);
-
-            Console.WriteLine(output.stdout);
-            if (output.stderr.Length > 0)
-            {
-                Console.WriteLine(output.stderr);
-            }
+            await client.Containers.StartContainerAsync(wtcontainer.ID, new ContainerStartParameters());
         }
     }
 }
