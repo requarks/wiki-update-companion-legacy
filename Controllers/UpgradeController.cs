@@ -41,10 +41,11 @@ namespace wiki_update_companion.Controllers
             {
                 Image = "containrrr/watchtower",
                 Name = "watchtower",
-                Cmd = new String[] {
+                Cmd = new List<String>() {
+                    "wiki",
                     "--cleanup",
                     "--run-once",
-                    "wiki"
+                    "--debug"
                 },
                 HostConfig = new HostConfig
                 {
