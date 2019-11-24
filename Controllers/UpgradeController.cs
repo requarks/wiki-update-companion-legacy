@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
@@ -25,7 +27,11 @@ namespace wiki_update_companion.Controllers
         [HttpPost]
         public async void Post()
         {
-            DockerClient client = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
+            Uri dockerSocket = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? new Uri("npipe://./pipe/docker_engine")
+                : new Uri("unix:/var/run/docker.sock");
+
+            DockerClient client = new DockerClientConfiguration(dockerSocket).CreateClient();
 
             await client.Images.CreateImageAsync(
                 new ImagesCreateParameters
@@ -37,7 +43,7 @@ namespace wiki_update_companion.Controllers
                 null
             );
 
-            await client.Containers.CreateContainerAsync(new CreateContainerParameters
+            CreateContainerResponse wtcontainer = await client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 Image = "containrrr/watchtower",
                 Name = "watchtower",
@@ -58,10 +64,20 @@ namespace wiki_update_companion.Controllers
                             Type = "bind"
                         }
                     }
-                }
+                },
+                AttachStderr = true,
+                AttachStdout = true
             });
 
-            await client.Containers.StartContainerAsync("watchtower", null);
+            MultiplexedStream wtStream = await client.Containers.StartAndAttachContainerExecAsync(wtcontainer.ID, false);
+
+            var output = await wtStream.ReadOutputToEndAsync(CancellationToken.None);
+
+            Console.WriteLine(output.stdout);
+            if (output.stderr.Length > 0)
+            {
+                Console.WriteLine(output.stderr);
+            }
         }
     }
 }
