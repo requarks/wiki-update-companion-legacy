@@ -39,7 +39,7 @@ namespace wiki_update_companion.Controllers
                 FromSrc = "https://registry-1.docker.io",
                 Repo = "containrrr/watchtower",
                 Tag = "latest"
-            }, null, null);
+            }, null, new Progress<JSONMessage>());
 
             CreateContainerResponse wtcontainer = await client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
