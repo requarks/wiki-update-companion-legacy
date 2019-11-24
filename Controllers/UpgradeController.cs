@@ -29,7 +29,7 @@ namespace wiki_update_companion.Controllers
         {
             Uri dockerSocket = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? new Uri("npipe://./pipe/docker_engine")
-                : new Uri("unix:/var/run/docker.sock");
+                : new Uri("unix:///var/run/docker.sock");
 
             DockerClient client = new DockerClientConfiguration(dockerSocket).CreateClient();
 
