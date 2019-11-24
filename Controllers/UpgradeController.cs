@@ -33,6 +33,14 @@ namespace wiki_update_companion.Controllers
 
             DockerClient client = new DockerClientConfiguration(dockerSocket).CreateClient();
 
+            await client.Images.CreateImageAsync(new ImagesCreateParameters
+            {
+                FromImage = "containrrr/watchtower:latest",
+                FromSrc = "https://registry-1.docker.io",
+                Repo = "containrrr/watchtower",
+                Tag = "latest"
+            }, null, null);
+
             CreateContainerResponse wtcontainer = await client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 Image = "containrrr/watchtower",
@@ -60,6 +68,7 @@ namespace wiki_update_companion.Controllers
             });
 
             await client.Containers.StartContainerAsync(wtcontainer.ID, new ContainerStartParameters());
+
         }
     }
 }
